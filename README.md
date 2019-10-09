@@ -2,6 +2,6 @@ Robofriends
 
 Small sample project build with React
 
-Clone this repo
-Run npm install
-Run npm star
+1.Clone this repo
+2.Run npm install
+3.Run npm star
