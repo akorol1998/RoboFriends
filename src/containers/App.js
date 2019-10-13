@@ -1,49 +1,51 @@
 import React, {Component} from 'react'
+import { connect } from 'react-redux';
 import CardList from '../components/CardList'
 import SearchBox from '../components/SearchBox'
+import ErrorBoundry from "../components/ErrorBoundry"
 import './App.css'
 import Scroll from "../components/Scroll"
 
+import { setSearchField, requestRobots } from '../actions'
+
+const mapStateToProps = state => {
+	console.log(state);
+	return {
+		searchField: state.searchRobots.searchField,
+		isPanding: state.requestRobots.isPanding,
+		robots:state.requestRobots.robots,
+		error:state.requestRobots.error,
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {Blyat: (event) => dispatch(setSearchField(event.target.value)),
+			onRequestRobots: () => dispatch(requestRobots())}
+}
 
 class App extends Component {
-	constructor(){
-		super();
-		this.state = {
-			robots: [],
-			searchField: ""			
-		}
-	};
-
-
 	componentDidMount(){
-		fetch('https://jsonplaceholder.typicode.com/users')
-		.then(response => {
-			return response.json();
-		})
-		.then(users => {this.setState({robots: users})});
+		this.props.onRequestRobots();
 	}
-
-	onSearchChange = (event) => {
-		this.setState({searchField: event.target.value})
-	}
-
 
 	render(){
-		const { robots, searchField } = this.state;
+		const { searchField, Blyat, robots, isPanding } = this.props
 		const filteredRobots = robots.filter(robot => {
 			return robot.name.toLowerCase().includes(searchField.toLowerCase());
 		});
-		return !robots.length
+		return isPanding
 		? <h1> Loading </h1>
 		:
 		<div className='tc'>
 			<h1 className='f1'>Robo friends</h1>
-			<SearchBox searchChange={ this.onSearchChange }/>
+			<SearchBox searchChange={ Blyat }/>
 			<Scroll>
-				<CardList robots={ filteredRobots }/>
+				<ErrorBoundry>
+					<CardList robots={ filteredRobots }/>
+				</ErrorBoundry>
 			</Scroll>
 		</div>
 	};
 };
 
-export default  App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);
